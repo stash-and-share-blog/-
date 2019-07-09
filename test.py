@@ -9,6 +9,8 @@ import os
 
 class Xiaolongbao:
 
+    outputDir = "./k.output"
+
     def __init__(self):
         self.baseUrl = "https://www.chinatimes.com"
 
@@ -37,7 +39,6 @@ class Xiaolongbao:
                 "datetime": datetime,
                 "dirName": dirName
             })
-            
 
         return articleList
 
@@ -66,9 +67,10 @@ class Xiaolongbao:
             imgUrl = imgElem.attrs["src"]
             imgDesc = imgElem.attrs["alt"]
 
-            imgDict = {}
-            imgDict["url"] = imgUrl
-            imgDict["desc"] = imgDesc
+            imgDict = {
+                "url": imgUrl,
+                "desc": imgDesc
+            }
             imgAry.append(imgDict)
 
         return {
@@ -80,8 +82,57 @@ class Xiaolongbao:
 
     def saveArticleAsFile(self, articleMeta, articleDict):
         dirName = articleMeta["dirName"]
-        os.makedirs(dirName)
-        # TODO now-here
+        dirAbsPath = Xiaolongbao.outputDir + "/" + dirName
+        url = articleMeta["url"]
+        textContent = articleDict["textContent"]
+
+        if not os.path.exists(dirAbsPath):
+            os.makedirs(dirAbsPath)
+
+        # --- write URL file
+        f = open(dirAbsPath + "/url.url", "w", encoding="utf-8")
+        f.write("[InternetShortcut]\n")
+        f.write("URL=" + url)
+        f.close()
+
+        # --- write text-content
+        f = open(dirAbsPath + "/text-content.txt", "w", encoding="utf-8")
+        f.write(textContent)
+        f.close()
+
+        # --- write photos
+        imgAry = articleDict["imgAry"]
+        for imgDict in imgAry:
+            imgUrl = imgDict["url"]
+            imgFileName = imgUrl.split("/")[-1]
+            imgId = imgFileName.split(".")[0]
+
+            # --- write photo url
+            f = open(dirAbsPath + "/img_" + imgId + ".url", "w", encoding="utf-8")
+            f.write("[InternetShortcut]\n")
+            f.write("URL=" + imgUrl)
+            f.close()
+
+            # --- write photo desc
+            f = open(dirAbsPath + "/img_" + imgId + "_desc.txt",
+                     "w", encoding="utf-8")
+            f.write(imgUrl)
+            f.write("\n\n")
+            f.write(imgDict["desc"])
+            f.close()
+
+            # --- download photo
+            with open(dirAbsPath + "/img_" + imgFileName, 'wb') as handle:
+                res = requests.get(imgUrl, stream=True)
+
+                # TODO to handle err
+                # if not res.ok:
+                #     print(res)
+
+                for buff in res.iter_content(2048):
+                    if not buff:
+                        break
+                    handle.write(buff)
 
 
 if __name__ == "__main__":
@@ -93,4 +144,3 @@ if __name__ == "__main__":
         articleDict = bao.getArticleContent(url)
 
         bao.saveArticleAsFile(articleMeta, articleDict)
-
