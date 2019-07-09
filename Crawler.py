@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import os
 
 
-class Xiaolongbao:
+class Crawler:
 
     outputDirRoot = "./k.output"
 
@@ -89,7 +89,7 @@ class Xiaolongbao:
         dirName = articleMeta["dirName"]
         hourParentDir = articleMeta["hourParentDir"]
         dayParentDir = articleMeta["dayParentDir"]
-        return Xiaolongbao.outputDirRoot + "/" + \
+        return Crawler.outputDirRoot + "/" + \
             dayParentDir + "/" + hourParentDir + "/" + dirName
 
     def saveArticleAsFile(self, articleMeta, articleDict):
@@ -153,11 +153,11 @@ class Xiaolongbao:
 
 
 if __name__ == "__main__":
-    bao = Xiaolongbao()
-    articleMetaList = bao.getArticleMetaList()
+    crawler = Crawler()
+    articleMetaList = crawler.getArticleMetaList()
 
     for articleMeta in articleMetaList:
         url = articleMeta["url"]
-        articleDict = bao.getArticleContent(url)
+        articleDict = crawler.getArticleContent(url)
 
-        bao.saveArticleAsFile(articleMeta, articleDict)
+        crawler.saveArticleAsFile(articleMeta, articleDict)
