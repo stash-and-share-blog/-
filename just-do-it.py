@@ -9,7 +9,7 @@ import os
 
 class Xiaolongbao:
 
-    outputDir = "./k.output"
+    outputDirRoot = "./k.output"
 
     def __init__(self):
         self.baseUrl = "https://www.chinatimes.com"
@@ -32,12 +32,17 @@ class Xiaolongbao:
             datetimeForFileName = datetime.replace(":", "-").replace(" ", "_")
             dirName = datetimeForFileName + "__" + urlId
 
+            hourParentDir = datetimeForFileName[:13]  # output
+            dayParentDir = datetimeForFileName[:10]  # output
+
             articleList.append({
                 "title": title,
                 "url": url,
                 "urlId": urlId,
                 "datetime": datetime,
-                "dirName": dirName
+                "dirName": dirName,
+                "hourParentDir": hourParentDir,
+                "dayParentDir": dayParentDir
             })
 
         return articleList
@@ -80,14 +85,24 @@ class Xiaolongbao:
             "imgAry": imgAry
         }
 
-    def saveArticleAsFile(self, articleMeta, articleDict):
+    def __createDataAbsPath__(self, articleMeta):
         dirName = articleMeta["dirName"]
-        dirAbsPath = Xiaolongbao.outputDir + "/" + dirName
+        hourParentDir = articleMeta["hourParentDir"]
+        dayParentDir = articleMeta["dayParentDir"]
+        return Xiaolongbao.outputDirRoot + "/" + \
+            dayParentDir + "/" + hourParentDir + "/" + dirName
+
+    def saveArticleAsFile(self, articleMeta, articleDict):
+        dirAbsPath = self.__createDataAbsPath__(articleMeta)
         url = articleMeta["url"]
         textContent = articleDict["textContent"]
 
+        dirName = articleMeta["dirName"]
         if not os.path.exists(dirAbsPath):
             os.makedirs(dirAbsPath)
+        else:
+            print("article exist, skip: " + dirName)
+            return
 
         # --- write URL file
         f = open(dirAbsPath + "/url.url", "w", encoding="utf-8")
@@ -100,7 +115,6 @@ class Xiaolongbao:
         f.write(textContent)
         f.close()
 
-        # --- write photos
         imgAry = articleDict["imgAry"]
         for imgDict in imgAry:
             imgUrl = imgDict["url"]
@@ -108,7 +122,8 @@ class Xiaolongbao:
             imgId = imgFileName.split(".")[0]
 
             # --- write photo url
-            f = open(dirAbsPath + "/img_" + imgId + ".url", "w", encoding="utf-8")
+            f = open(dirAbsPath + "/img_" + imgId +
+                     ".url", "w", encoding="utf-8")
             f.write("[InternetShortcut]\n")
             f.write("URL=" + imgUrl)
             f.close()
@@ -121,18 +136,20 @@ class Xiaolongbao:
             f.write(imgDict["desc"])
             f.close()
 
-            # --- download photo
-            with open(dirAbsPath + "/img_" + imgFileName, 'wb') as handle:
-                res = requests.get(imgUrl, stream=True)
+            # # --- download photo
+            # with open(dirAbsPath + "/img_" + imgFileName, 'wb') as handle:
+            #     res = requests.get(imgUrl, stream=True)
 
-                # TODO to handle err
-                # if not res.ok:
-                #     print(res)
+            #     # TODO to handle err
+            #     # if not res.ok:
+            #     #     print(res)
 
-                for buff in res.iter_content(2048):
-                    if not buff:
-                        break
-                    handle.write(buff)
+            #     for buff in res.iter_content(2048):
+            #         if not buff:
+            #             break
+            #         handle.write(buff)
+
+        print("article saved: " + dirName)
 
 
 if __name__ == "__main__":
