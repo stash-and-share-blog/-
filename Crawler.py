@@ -9,7 +9,7 @@ import os
 
 class Crawler:
 
-    outputDirRoot = "./k.output"
+    outputDirRoot = "./__output__"
 
     def __init__(self):
         self.baseUrl = "https://www.chinatimes.com"
