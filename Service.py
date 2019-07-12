@@ -11,18 +11,18 @@ class Service:
     def __init__(self):
         self.crawler = Crawler()
 
-    def batchSaveArticleAsFile(self):
+    def batchSaveArticleAsFiles(self):
         articleMetaList = self.crawler.getArticleMetaList()
         for articleMeta in articleMetaList:
             url = articleMeta["url"]
             articleDict = self.crawler.getArticleContent(url)
-            self.crawler.saveArticleAsFile(articleMeta, articleDict)
+            self.crawler.saveArticleAsFiles(articleMeta, articleDict)
 
     def start(self):
         currentTimeStr = time.strftime("%Y-%m-%d, %H:%M:%S")
         print("------ START TO CRAWL ------ @ " + currentTimeStr)
         try:
-            self.batchSaveArticleAsFile()
+            self.batchSaveArticleAsFiles()
         except Exception:
             traceback.print_exc()
         print("------ END OF THIS ROUND ------")

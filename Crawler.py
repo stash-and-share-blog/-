@@ -5,11 +5,10 @@ import requests
 import time
 from bs4 import BeautifulSoup
 import os
+from Setting import Setting
 
 
 class Crawler:
-
-    outputDirRoot = "./__output__"
 
     def __init__(self):
         self.baseUrl = "https://www.chinatimes.com"
@@ -89,12 +88,13 @@ class Crawler:
         dirName = articleMeta["dirName"]
         hourParentDir = articleMeta["hourParentDir"]
         dayParentDir = articleMeta["dayParentDir"]
-        return Crawler.outputDirRoot + "/" + \
+        return Setting.outputDirRoot + "/" + \
             dayParentDir + "/" + hourParentDir + "/" + dirName
 
-    def saveArticleAsFile(self, articleMeta, articleDict):
+    def saveArticleAsFiles(self, articleMeta, articleDict):
         dirAbsPath = self.__createDataAbsPath__(articleMeta)
         url = articleMeta["url"]
+        title = articleMeta["title"]
         textContent = articleDict["textContent"]
 
         dirName = articleMeta["dirName"]
@@ -112,6 +112,7 @@ class Crawler:
 
         # --- write text-content
         f = open(dirAbsPath + "/text-content.txt", "w", encoding="utf-8")
+        f.write(title + "\n\n")
         f.write(textContent)
         f.close()
 
@@ -160,4 +161,4 @@ if __name__ == "__main__":
         url = articleMeta["url"]
         articleDict = crawler.getArticleContent(url)
 
-        crawler.saveArticleAsFile(articleMeta, articleDict)
+        crawler.saveArticleAsFiles(articleMeta, articleDict)
