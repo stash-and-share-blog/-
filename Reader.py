@@ -1,18 +1,40 @@
 from Setting import Setting
 import os
 import traceback
-
+import re
 
 class Reader:
 
     def __init__(self):
         pass
 
-    # def loadArticleOfOneDay(self, dateStr):
-    #     for i in range(0, 24): # 24 is for 1 day - 24 hr
-    #         hrStr = "{:02d}".format(i + 1)
-    #         hrDirName = Setting.outputDirRoot + "/" + dateStr + "/" + dateStr + "_" + hrStr, "r"
-    #         if os.path.exists(hrDirName):
+    def listAllDayDirNames(self):
+        dayDirNameAry = []
+        dirs = os.listdir(Setting.outputDirRoot)
+        for tmpDirName in dirs:
+            rx = re.compile(r"^(\d{4}-\d{1,2}-\d{1,2})$")
+            if rx.match(tmpDirName):
+                dayDirNameAry.append(tmpDirName)
+        return dayDirNameAry
+
+    def listHourDirPathsOfOneDay(self, dayDirStr):
+        hrDirPathAry = []
+        for i in range(0, 24): # 24 is for 1 day - 24 hr
+            hrStr = "{:02d}".format(i + 1)
+            hrDirPath = Setting.outputDirRoot + "/" + dayDirStr + "/" + dayDirStr + "_" + hrStr
+            if os.path.exists(hrDirPath):
+                hrDirPathAry.append(hrDirPath)
+        return hrDirPathAry
+
+    def listArticleDirPathsOfOneHour(self, hourDirPath):
+        articleDirPathAry = []
+        dirs = os.listdir(hourDirPath)
+        for tmpDirName in dirs:
+            rx = re.compile(r"^(\d{4}-\d{1,2}-\d{1,2}_\d{1,2}-\d{1,2}__\d{1,14}-\d{1,6})$")
+            if rx.match(tmpDirName):
+                articleDirPathAry.append(hourDirPath + "/" + tmpDirName)
+        
+        return articleDirPathAry
 
     def loadArticle_inArticleDir(self, articleDirPath):
         try:
@@ -66,8 +88,15 @@ class Reader:
 
 if __name__ == "__main__":
     r = Reader()
-    # r.loadArticleOfOneDay("2019-07-10")
-    data = r.loadArticle_inArticleDir(
-        r".\__output__\2019-07-13\2019-07-13_18\2019-07-13_18-24__20190713002360-260404")
 
-    print(data)
+    # articleDirPathAry = r.listArticleDirPathsOfOneHour(r".\__output__\2019-07-13\2019-07-13_18")
+    # print(articleDirPathAry)
+
+    # dayDirNames = r.listAllDayDirNames()
+    # print(dayDirNames)
+
+    # hrDirPathAry = r.listHourDirPathOfOneDay("2019-07-13")
+    # print(hrDirPathAry)
+    
+    # data = r.loadArticle_inArticleDir(r".\__output__\2019-07-13\2019-07-13_18\2019-07-13_18-24__20190713002360-260404")
+    # print(data)
