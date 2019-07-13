@@ -1,5 +1,6 @@
 from Setting import Setting
 import os
+import traceback
 
 
 class Reader:
@@ -14,20 +15,59 @@ class Reader:
     #         if os.path.exists(hrDirName):
 
     def loadArticle_inArticleDir(self, articleDirPath):
-        f = open(articleDirPath + "/text-content.txt", encoding="utf-8")
-        content_with_title = f.read()  # output
-        title = content_with_title.split("\n")[0]  # output
-        content = content_with_title.split("\n")[2]  # output
-        f.close()
-        # TODO to get other data
-        return {
-            "title": title,
-            "content": content
-        }
+        try:
+            f = open(articleDirPath + "/text-content.txt", encoding="utf-8")
+            content_with_title = f.read()  # output
+            title = content_with_title.split("\n")[0]  # output
+            content = content_with_title.split("\n")[2]  # output
+            f.close()
+
+            f = open(articleDirPath + "/url.url", encoding="utf-8")
+            urlFileContent = f.read()
+            url = urlFileContent.split("\n")[1].split("=")[1]  # output
+            f.close()
+
+            imgDict = {}
+            fileList = os.listdir(articleDirPath)
+            for fileName in fileList:
+                # to get img url
+                if fileName.startswith("img_") and not fileName.endswith("_desc.txt"):
+                    f = open(articleDirPath + "/" + fileName, encoding="utf-8")
+                    tmpImgUrlFileContent = f.read()
+                    tmpImgUrl = tmpImgUrlFileContent.split(
+                        "\n")[1].split("=")[1]  # output
+                    f.close()
+                    imgId = fileName[4:-4]  # for head "img_" and tail ".url"
+                    imgDict[imgId] = {
+                        "url": tmpImgUrl
+                    }
+
+            for fileName in fileList:
+                # to get img desc
+                if fileName.startswith("img_") and fileName.endswith("_desc.txt"):
+                    f = open(articleDirPath + "/" + fileName, encoding="utf-8")
+                    tmpImgDesc = f.read()  # output
+                    f.close()
+                    # for head "img_" and tail "_desc.txt"
+                    imgId = fileName[4:-9]
+                    imgDict[imgId]["desc"] = tmpImgDesc
+
+            return {
+                "url": url,
+                "title": title,
+                "content": content,
+                "imgs": imgDict
+            }
+
+        except Exception:
+            traceback.print_exc()
+            return None
 
 
 if __name__ == "__main__":
     r = Reader()
     # r.loadArticleOfOneDay("2019-07-10")
-    r.loadArticle_inArticleDir(
-        r".\__output__\2019-07-12\2019-07-12_16\2019-07-12_16-32__20190712003070-260405")
+    data = r.loadArticle_inArticleDir(
+        r".\__output__\2019-07-13\2019-07-13_18\2019-07-13_18-24__20190713002360-260404")
+
+    print(data)

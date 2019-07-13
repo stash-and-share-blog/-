@@ -132,8 +132,6 @@ class Crawler:
             # --- write photo desc
             f = open(dirAbsPath + "/img_" + imgId + "_desc.txt",
                      "w", encoding="utf-8")
-            f.write(imgUrl)
-            f.write("\n\n")
             f.write(imgDict["desc"])
             f.close()
 
