@@ -42,6 +42,7 @@ if __name__ == "__main__":
 
     print("articleNum", articleNum)
     print("articleWithPicNum", articleWithPicNum)
+    
     print("hrArticleNumDict", hrArticleNumDict)
     print("dayArticleNumDict", dayArticleNumDict)
     print("articlePicNumDict", articlePicNumDict)

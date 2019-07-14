@@ -82,7 +82,13 @@ class Reader:
             }
 
         except Exception:
+            print("--------------------------------------------------")
+            print("[START] Warning only, will not interrupt logic")
+            print("--------------------------------------------------")
             traceback.print_exc()
+            print("--------------------------------------------------")
+            print("[END]")
+            print("--------------------------------------------------")
             return None
 
 
